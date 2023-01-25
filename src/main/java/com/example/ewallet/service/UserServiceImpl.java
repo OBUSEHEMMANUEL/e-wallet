@@ -27,6 +27,7 @@ public class UserServiceImpl implements UserService {
         return generateToken(user);
     }
 
+    @Override
     public String generateToken(User user) {
         String token = "";
         StringBuffer tok = new StringBuffer();
