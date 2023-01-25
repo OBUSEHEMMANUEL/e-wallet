@@ -11,4 +11,6 @@ public interface UserService {
     String login(LoginRequest loginRequest);
 
     String changePassword(ChangePasswordRequest changePasswordRequest);
+
+   String  generateToken(User user);
 }

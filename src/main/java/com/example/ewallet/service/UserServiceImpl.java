@@ -10,15 +10,15 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private ConfirmationTokenService confirmationTokenService;
+
 
     @Override
     public String createAccount(User user) {
@@ -27,11 +27,11 @@ public class UserServiceImpl implements UserService{
         return generateToken(user);
     }
 
-    private String generateToken(User user) {
+    public String generateToken(User user) {
         String token = "";
         StringBuffer tok = new StringBuffer();
         SecureRandom number = new SecureRandom();
-        for (int i =0 ; i < 4; i++){
+        for (int i = 0; i < 4; i++) {
             int num = number.nextInt(9);
             tok.append(num);
         }
@@ -47,7 +47,8 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public void enableUser(String emailAddress) {
-
+     var user =   userRepository.findByEmailAddressIgnoreCase(emailAddress).orElseThrow(()-> new RuntimeException("email not found"));
+     user.setDisabled(false);
     }
 
     @Override
@@ -59,4 +60,6 @@ public class UserServiceImpl implements UserService{
     public String changePassword(ChangePasswordRequest changePasswordRequest) {
         return null;
     }
+
+
 }
