@@ -1,10 +1,14 @@
 package com.example.ewallet.service;
 
+import com.example.ewallet.dtos.request.ResendTokenRequest;
+import com.example.ewallet.dtos.request.SetPasswordRequest;
+import com.example.ewallet.service.email.EmailSenderService;
 import com.example.ewallet.data.models.User;
 import com.example.ewallet.data.repository.UserRepository;
 import com.example.ewallet.dtos.request.ConfirmTokenRequest;
 import com.example.ewallet.dtos.request.RegistrationRequest;
 import com.example.ewallet.dtos.response.RegistrationResponse;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,7 +25,10 @@ public class RegistrationServiceImpl implements RegistrationService{
     @Autowired
     private ConfirmationTokenService confirmationTokenService;
 
-    public RegistrationResponse register(RegistrationRequest registrationRequest){
+    @Autowired
+    private EmailSenderService emailSenderService;
+
+    public RegistrationResponse register(RegistrationRequest registrationRequest) throws MessagingException {
         boolean emailExist = userRepository.findByEmailAddressIgnoreCase(registrationRequest.getEmailAddress()).isPresent();
         if (emailExist) throw new IllegalStateException("Email Address Already Exist");
         User user = new User();
@@ -33,10 +40,10 @@ public class RegistrationServiceImpl implements RegistrationService{
         RegistrationResponse registrationResponse = new RegistrationResponse();
         registrationResponse.setStatus(HttpStatus.CREATED);
         registrationResponse.setToken(token);
-        //emailSender.send(registrationRequest.getEmailAddress(),buildEmail(registrationRequest.getEmailAddress(),token));
+        emailSenderService.send(registrationRequest.getEmailAddress(),buildEmail(registrationRequest.getEmailAddress(),token));
         return registrationResponse;
     }
-    public String confirmationToken(ConfirmTokenRequest confirmationToken){
+    public String confirmToken(ConfirmTokenRequest confirmationToken){
         var token = confirmationTokenService.getConfirmationToken(confirmationToken.getToken())
                 .orElseThrow(()-> new IllegalStateException("Token does not exist"));
 
@@ -45,9 +52,29 @@ public class RegistrationServiceImpl implements RegistrationService{
         }
         confirmationTokenService.setConfirmed(token.getToken());
         userService.enableUser(confirmationToken.getEmailAddress());
-        return  "confirmed";
+        return "confirmed";
     }
-    private String buildEmail(String name, String link) {
+    @Override
+    public String ResendToken(ResendTokenRequest request) throws MessagingException {
+        var foundMail = userRepository.findByEmailAddressIgnoreCase(request.getEmailAddress())
+                .orElseThrow(() -> new RuntimeException("Email does not exist"));
+
+            var generatedToken = userService.generateToken(foundMail);
+            emailSenderService.send(request.getEmailAddress(),buildEmail(request.getEmailAddress(),generatedToken));
+            return generatedToken;
+       }
+
+       @Override
+    public String setPassword(SetPasswordRequest passwordRequest){
+        User user = userRepository.findByEmailAddressIgnoreCase(passwordRequest.getEmailAddress())
+                .orElseThrow(()->new RuntimeException("Email does not exist"));
+        user.setPassword(passwordRequest.getNewPassword());
+        userRepository.save(user);
+        return "Password set Successfully";
+    }
+
+
+    protected String buildEmail(String name, String link) {
         return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
                 "\n" +
                 "<span style=\"display:none;font-size:1px;color:#fff;max-height:0\"></span>\n" +
