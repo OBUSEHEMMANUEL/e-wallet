@@ -4,8 +4,10 @@ import com.example.ewallet.ExceptionHandler.ErrorDetails;
 import com.example.ewallet.data.models.ConfirmationToken;
 import com.example.ewallet.data.models.User;
 import com.example.ewallet.data.repository.UserRepository;
+import com.example.ewallet.dtos.request.AddCardRequest;
 import com.example.ewallet.dtos.request.ChangePasswordRequest;
 import com.example.ewallet.dtos.request.LoginRequest;
+import com.example.ewallet.dtos.response.AddCardResponse;
 import com.example.ewallet.dtos.response.LoginResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,8 @@ import java.time.LocalDateTime;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CardService cardService;
 
     @Autowired
     private ConfirmationTokenService confirmationTokenService;
@@ -47,6 +51,25 @@ public class UserServiceImpl implements UserService {
         confirmationToken.setUser(user);
         confirmationTokenService.saveConfirmationToken(confirmationToken);
         return token;
+    }
+
+    @Override
+    public AddCardResponse addCard(AddCardRequest addCardRequest) {
+        var user=userRepository.findById(addCardRequest.getUserId()).orElseThrow(()-> new RuntimeException("User not found"));
+        boolean isCardExist = cardService.findCard(addCardRequest.getCard().getCardNo()).isPresent();
+
+        if (isCardExist) {
+            throw new RuntimeException("Card already exist");
+        } else {
+            cardService.addCard(addCardRequest.getCard());
+            user.getUserCards().add(addCardRequest.getCard());
+            userRepository.save(user);
+        }
+
+        AddCardResponse response = new AddCardResponse();
+        response.setMessage("card added successfully");
+        response.setStatusCode(HttpStatus.OK);
+        return response;
     }
 
     @Override
