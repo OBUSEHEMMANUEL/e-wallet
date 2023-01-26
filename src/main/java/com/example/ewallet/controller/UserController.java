@@ -1,5 +1,6 @@
 package com.example.ewallet.controller;
 
+import com.example.ewallet.dtos.request.AddCardRequest;
 import com.example.ewallet.dtos.request.ChangePasswordRequest;
 import com.example.ewallet.dtos.request.LoginRequest;
 import com.example.ewallet.dtos.request.RegistrationRequest;
@@ -40,6 +41,17 @@ public class UserController {
         ApiResponse response = ApiResponse.builder()
                 .statusCode(HttpStatus.OK.value())
                 .data(userService.changePassword(request))
+                .timeStamp(ZonedDateTime.now())
+                .path(httpServletRequest.getRequestURI())
+                .isSuccessful(true)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    @PostMapping("addCard")
+    public ResponseEntity<ApiResponse> addCard(@RequestBody AddCardRequest addCardRequest, HttpServletRequest httpServletRequest){
+        ApiResponse response = ApiResponse.builder()
+                .statusCode(HttpStatus.OK.value())
+                .data(userService.addCard(addCardRequest))
                 .timeStamp(ZonedDateTime.now())
                 .path(httpServletRequest.getRequestURI())
                 .isSuccessful(true)
