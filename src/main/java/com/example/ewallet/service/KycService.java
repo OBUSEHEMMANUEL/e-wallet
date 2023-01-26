@@ -12,6 +12,6 @@ import java.util.Optional;
 
 public interface KycService {
    KycResponse doKyc(KycRequest kycRequest);
-   KycUpdateResponse updateDocument(KycUpdateRequest kycUpdateRequest);
+   KycUpdateResponse updateKycDetails(KycUpdateRequest kycUpdateRequest);
 
 }
