@@ -1,5 +1,6 @@
 package com.example.ewallet.service;
 
+import com.example.ewallet.data.models.Card;
 import com.example.ewallet.data.models.Kyc;
 import com.example.ewallet.data.models.User;
 import com.example.ewallet.data.repository.KycRepository;
@@ -22,28 +23,21 @@ public class KycServiceImpl implements KycService{
 
     @Override
     public KycResponse doKyc(KycRequest kycRequest) {
-        boolean emailExist = userRepository.findByEmailAddressIgnoreCase(kycRequest.getEmailAddress()).isPresent();
-        boolean kycEmailExist = kycRepository.findByEmailAddressIgnoreCase(kycRequest.getEmailAddress()).isPresent();
-        User user = userRepository.findByEmailAddressIgnoreCase(kycRequest.getEmailAddress())
+        User user = userRepository.findById(kycRequest.getUserId())
                 .orElseThrow(()->new RuntimeException("You are not a registered user"));
-        setKyc(kycRequest, emailExist, kycEmailExist, user);
+        boolean idExist = userRepository.findById(kycRequest.getUserId()).isPresent();
+        setKycDetails(kycRequest, idExist, user);
         KycResponse kycResponse = new KycResponse();
         kycResponse.setMessage("Thank you for completing the kyc process");
         return kycResponse;
     }
 
-    private void setKyc(KycRequest kycRequest, boolean emailExist, boolean kycEmailExist, User user) {
-        if (emailExist && !kycEmailExist) {
+    private void setKycDetails(KycRequest kycRequest, boolean idExist, User user) {
+        if (idExist) {
             Kyc kyc = Kyc.builder()
                     .bvn(kycRequest.getBvn())
-                    .CardName(kycRequest.getCardName())
-                    .cardNo(kycRequest.getCardNo())
-                    .cvv(kycRequest.getCvv())
-                    .emailAddress(kycRequest.getEmailAddress())
-                    .nextOfKinFullName(kycRequest.getNextOfKinFullName())
-                    .phoneNumber(kycRequest.getPhoneNumber())
-                    .relationship(kycRequest.getRelationship())
-                    .expireDate(kycRequest.getExpireDate())
+                    .card(kycRequest.getCard())
+                    .nextOfKin(kycRequest.getNextOfKin())
                     .cardType(kycRequest.getCardType())
                     .homeAddress(kycRequest.getHomeAddress())
                     .build();
@@ -57,22 +51,16 @@ public class KycServiceImpl implements KycService{
     }
 
     @Override
-    public KycUpdateResponse updateDocument(KycUpdateRequest kycUpdateRequest) {
+    public KycUpdateResponse updateKycDetails(KycUpdateRequest kycUpdateRequest) {
        User user = userRepository.findById(kycUpdateRequest.getUserId())
                .orElseThrow(()-> new RuntimeException("User does not exist"));
        Kyc kyc = kycRepository.findById(kycUpdateRequest.getKycId())
                .orElseThrow(()-> new RuntimeException("No kyc details found"));
        if (user.getPassword().equals(kycUpdateRequest.getPassword())) {
-           kyc.setCardType(kycUpdateRequest.getCardType());
-           kyc.setCardNo(kycUpdateRequest.getCardNo());
-           kyc.setCardName(kycUpdateRequest.getCardName());
-           kyc.setCvv(kycUpdateRequest.getCvv());
-           kyc.setEmailAddress(kycUpdateRequest.getEmailAddress());
-           kyc.setExpireDate(kycUpdateRequest.getExpireDate());
            kyc.setHomeAddress(kycUpdateRequest.getHomeAddress());
-           kyc.setRelationship(kycUpdateRequest.getRelationship());
-           kyc.setPhoneNumber(kycUpdateRequest.getPhoneNumber());
-           kyc.setNextOfKinFullName(kycUpdateRequest.getNextOfKinFullName());
+           kyc.setCard(kycUpdateRequest.getCard());
+           kyc.setCardType(kycUpdateRequest.getCardType());
+           kyc.setNextOfKin(kycUpdateRequest.getNextOfKin());
            kycRepository.save(kyc);
        }
         KycUpdateResponse kycUpdateResponse = new KycUpdateResponse();

@@ -7,6 +7,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Optional;
 
 public interface KycRepository extends MongoRepository<Kyc, String> {
-    Optional<Kyc> findByEmailAddressIgnoreCase(String emailAddress);
     Optional<Kyc> findById(String id);
 }
