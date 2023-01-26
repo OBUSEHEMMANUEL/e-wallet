@@ -36,7 +36,7 @@ public class KycController {
     @PostMapping("/update")
     public ResponseEntity<ApiResponse> updateKyc(@RequestBody KycUpdateRequest kycUpdateRequest, HttpServletRequest httpServletRequest){
         ApiResponse apiResponse = ApiResponse.builder()
-                .data(kycService.updateDocument(kycUpdateRequest))
+                .data(kycService.updateKycDetails(kycUpdateRequest))
                 .isSuccessful(true)
                 .path(httpServletRequest.getRequestURI())
                 .statusCode(HttpStatus.OK.value())
@@ -44,6 +44,4 @@ public class KycController {
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
-
-
 }
