@@ -1,11 +1,14 @@
 package com.example.ewallet.service;
 
+import com.example.ewallet.ExceptionHandler.ErrorDetails;
 import com.example.ewallet.data.models.ConfirmationToken;
 import com.example.ewallet.data.models.User;
 import com.example.ewallet.data.repository.UserRepository;
 import com.example.ewallet.dtos.request.ChangePasswordRequest;
 import com.example.ewallet.dtos.request.LoginRequest;
+import com.example.ewallet.dtos.response.LoginResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -53,13 +56,35 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String login(LoginRequest loginRequest) {
-        return null;
+    public LoginResponse login(LoginRequest loginRequest) {
+        var foundUser = userRepository.findByEmailAddressIgnoreCase(loginRequest.getEmailAddress())
+                .orElseThrow(() -> new RuntimeException("email not found"));
+        LoginResponse loginResponse = new LoginResponse();
+        if (foundUser.getPassword().equals(loginRequest.getPassword())) {
+            loginResponse.setMessage("login successful");
+            loginResponse.setStatusCode(HttpStatus.OK);
+        }
+        else {
+            loginResponse.setMessage("re-login");
+            loginResponse.setStatusCode(HttpStatus.BAD_REQUEST);
+            throw new IllegalStateException("incorrect password");
+        }
+        return loginResponse;
     }
-
     @Override
     public String changePassword(ChangePasswordRequest changePasswordRequest) {
-        return null;
+        var foundUser = userRepository.
+                findByEmailAddressIgnoreCase(changePasswordRequest.getEmailAddress())
+                .orElseThrow(() -> new RuntimeException("email not found"));
+
+        if(foundUser.getPassword().equals(changePasswordRequest.getOldPassword())){
+      foundUser.setPassword(changePasswordRequest.getNewPassword());
+      userRepository.save(foundUser);
+
+        }
+
+        return "Password Changed Successfully";
+
     }
 
 
