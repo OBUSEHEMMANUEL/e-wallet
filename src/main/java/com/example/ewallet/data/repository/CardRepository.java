@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface CardRepository extends MongoRepository<Card, String> {
     Optional<Card> findByCardNo(String cardNo);
+    Card findByCardId(String cardId);
 }

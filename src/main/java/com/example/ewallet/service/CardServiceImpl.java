@@ -20,4 +20,14 @@ public class CardServiceImpl implements CardService{
     public Optional<Card> findCard(String cardNo) {
         return cardRepository.findByCardNo(cardNo);
     }
+
+    @Override
+    public Card findByCardId(String cardId) {
+        return cardRepository.findByCardId(cardId);
+    }
+
+    @Override
+    public void deleteCard(String id) {
+        cardRepository.deleteById(id);
+    }
 }

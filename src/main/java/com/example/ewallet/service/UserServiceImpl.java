@@ -1,20 +1,21 @@
 package com.example.ewallet.service;
 
-import com.example.ewallet.ExceptionHandler.ErrorDetails;
+import com.example.ewallet.data.models.Card;
 import com.example.ewallet.data.models.ConfirmationToken;
 import com.example.ewallet.data.models.User;
 import com.example.ewallet.data.repository.UserRepository;
-import com.example.ewallet.dtos.request.AddCardRequest;
-import com.example.ewallet.dtos.request.ChangePasswordRequest;
-import com.example.ewallet.dtos.request.LoginRequest;
+import com.example.ewallet.dtos.request.*;
 import com.example.ewallet.dtos.response.AddCardResponse;
+import com.example.ewallet.dtos.response.DeleteCardResponse;
 import com.example.ewallet.dtos.response.LoginResponse;
+import com.example.ewallet.dtos.response.UpdateCardResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -55,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AddCardResponse addCard(AddCardRequest addCardRequest) {
-        var user=userRepository.findById(addCardRequest.getUserId()).orElseThrow(()-> new RuntimeException("User not found"));
+        var user=userRepository.findById(addCardRequest.getUserId()).get();
         boolean isCardExist = cardService.findCard(addCardRequest.getCard().getCardNo()).isPresent();
 
         if (isCardExist) {
@@ -70,6 +71,52 @@ public class UserServiceImpl implements UserService {
         response.setMessage("card added successfully");
         response.setStatusCode(HttpStatus.OK);
         return response;
+    }
+
+    @Override
+    public UpdateCardResponse updateCard(UpdateCardRequest updateCardRequest) {
+        var user=userRepository.findById(updateCardRequest.getUserId()).orElseThrow(()-> new RuntimeException("User not found"));
+       var foundCard = cardService.findByCardId(updateCardRequest.getCard().getCardId());
+        boolean isCardExist = cardService.findCard(updateCardRequest.getCard().getCardNo()).isPresent();
+
+        if (!isCardExist) {
+            throw new RuntimeException("Card does not exist");
+        } else {
+            foundCard.setCardNo(updateCardRequest.getCard().getCardNo());
+            foundCard.setCardName(updateCardRequest.getCard().getCardName());
+            foundCard.setCvv(updateCardRequest.getCard().getCvv());
+            foundCard.setExpireDate(updateCardRequest.getCard().getExpireDate());
+            cardService.addCard(foundCard);
+            userRepository.save(user);
+        }
+
+        UpdateCardResponse response = new UpdateCardResponse();
+        response.setMessage("card updated successfully");
+        response.setStatusCode(HttpStatus.OK);
+        return response;
+    }
+
+    @Override
+    public Set<Card> findUserCards(String userId) {
+         var user = userRepository.findById(userId).orElseThrow(()-> new IllegalStateException("User Not Found"));
+        return user.getUserCards();
+    }
+
+
+    @Override
+    public DeleteCardResponse deleteCard(DeleteCardRequest deleteCardRequest) {
+        var user= userRepository.findById(deleteCardRequest.getUserId()).
+                orElseThrow(() -> new RuntimeException("user not found"));
+        var card = cardService.findByCardId(deleteCardRequest.getCardId());
+                if(card == null) throw new IllegalStateException("Card Not Found");
+        user.getUserCards().remove(card);
+        userRepository.save(user);
+        cardService.deleteCard(deleteCardRequest.getCardId());
+
+        DeleteCardResponse deleteCardResponse = new DeleteCardResponse();
+        deleteCardResponse.setStatusCode(HttpStatus.OK);
+        deleteCardResponse.setMessage("Card deleted successfully");
+        return deleteCardResponse;
     }
 
     @Override
@@ -109,6 +156,8 @@ public class UserServiceImpl implements UserService {
         return "Password Changed Successfully";
 
     }
+
+
 
 
 }

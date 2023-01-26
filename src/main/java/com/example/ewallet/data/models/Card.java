@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Card {
     @Id
-    private String id;
+    private String cardId;
     private String userId;
     @NotBlank(message = "Wrong card number format")
     @Pattern(regexp = "\\d{16}")
