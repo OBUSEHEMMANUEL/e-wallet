@@ -25,7 +25,7 @@ public class UserServiceImpl implements UserService {
     private KycService kycService;
     private ConfirmationTokenService confirmationTokenService;
 
-    @Autowired
+
     public UserServiceImpl(UserRepository userRepository, CardService cardService, KycService kycService, ConfirmationTokenService confirmationTokenService){
         this.kycService = kycService;
         this.userRepository = userRepository;

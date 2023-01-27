@@ -12,8 +12,12 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class EmailSenderServiceImpl implements EmailSenderService {
-    @Autowired
+
     JavaMailSender javaMailSender;
+
+    public EmailSenderServiceImpl(JavaMailSender javaMailSender){
+        this.javaMailSender = javaMailSender;
+    }
 
     @Override
     public void send(String toEmail, String email) throws MessagingException {

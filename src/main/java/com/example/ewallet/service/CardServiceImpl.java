@@ -21,7 +21,7 @@ public class CardServiceImpl implements CardService{
 
     private CardRepository cardRepository;
 
-    @Autowired
+
     public CardServiceImpl(CardRepository cardRepository){
         this.cardRepository = cardRepository;
     }
