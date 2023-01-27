@@ -71,7 +71,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public VerificationResponse verifyRecieversAccount(AccountVerificatonRequest verificatonRequest) throws IOException {
 
-
          OkHttpClient client = new OkHttpClient();
          Request request = new Request.Builder()
                  .url("https://api.paystack.co/bank/resolve?account_number=" + verificatonRequest.getAccountNo() +
