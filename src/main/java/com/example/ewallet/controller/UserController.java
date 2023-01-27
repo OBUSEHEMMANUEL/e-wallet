@@ -92,5 +92,30 @@ public class UserController {
 
     }
 
+    @PostMapping("/kyc")
+    public ResponseEntity<ApiResponse> doKyc(@RequestBody KycRequest kycRequest, HttpServletRequest httpServletRequest){
+        ApiResponse apiResponse = ApiResponse.builder()
+                .data(userService.doKyc(kycRequest))
+                .isSuccessful(true)
+                .path(httpServletRequest.getRequestURI())
+                .statusCode(HttpStatus.OK.value())
+                .timeStamp(ZonedDateTime.now())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+
+    @PostMapping("/updateKyc")
+    public ResponseEntity<ApiResponse> updateKyc(@RequestBody KycUpdateRequest kycUpdateRequest, HttpServletRequest httpServletRequest){
+        ApiResponse apiResponse = ApiResponse.builder()
+                .data(userService.updateKyc(kycUpdateRequest))
+                .isSuccessful(true)
+                .path(httpServletRequest.getRequestURI())
+                .statusCode(HttpStatus.OK.value())
+                .timeStamp(ZonedDateTime.now())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
 
 }
