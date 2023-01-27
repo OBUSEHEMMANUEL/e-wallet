@@ -10,8 +10,13 @@ import java.util.Optional;
 
 @Service
 public class ConfirmationTokenServiceImpl implements ConfirmationTokenService{
-    @Autowired
+
     private ConfirmationTokenRepository confirmationTokenRepository;
+
+    @Autowired
+    public ConfirmationTokenServiceImpl(ConfirmationTokenRepository confirmationTokenRepository){
+        this.confirmationTokenRepository = confirmationTokenRepository;
+    }
 
     public void saveConfirmationToken(ConfirmationToken confirmationToken){
         confirmationTokenRepository.save(confirmationToken);

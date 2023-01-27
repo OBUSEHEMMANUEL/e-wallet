@@ -28,7 +28,6 @@ public class Kyc {
     @NotBlank(message = "Address field is required")
     @Pattern(regexp = "^[a-zA-Z0-9\\\\s,'-]*$")
     private String homeAddress;
-    private Card card;
     private NextOfKin nextOfKin;
     @NotBlank(message = "Select card type")
     private CardType cardType;

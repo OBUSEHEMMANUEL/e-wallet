@@ -15,8 +15,13 @@ import java.time.ZonedDateTime;
 @RestController
 @RequestMapping(path = "/api/v1/registration")
 public class UserController {
-    @Autowired
+
     UserService userService;
+
+    @Autowired
+    public UserController(UserService userService){
+        this.userService = userService;
+    }
 
     @PostMapping("login")
     public ResponseEntity<ApiResponse> login(@RequestBody LoginRequest request, HttpServletRequest httpServletRequest) throws MessagingException {
@@ -90,6 +95,31 @@ public class UserController {
                 .build();
         return new ResponseEntity<>(response, HttpStatus.OK);
 
+    }
+
+    @PostMapping("/kyc")
+    public ResponseEntity<ApiResponse> doKyc(@RequestBody KycRequest kycRequest, HttpServletRequest httpServletRequest){
+        ApiResponse apiResponse = ApiResponse.builder()
+                .data(userService.doKyc(kycRequest))
+                .isSuccessful(true)
+                .path(httpServletRequest.getRequestURI())
+                .statusCode(HttpStatus.OK.value())
+                .timeStamp(ZonedDateTime.now())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+
+    @PostMapping("/updateKyc")
+    public ResponseEntity<ApiResponse> updateKyc(@RequestBody KycUpdateRequest kycUpdateRequest, HttpServletRequest httpServletRequest){
+        ApiResponse apiResponse = ApiResponse.builder()
+                .data(userService.updateKyc(kycUpdateRequest))
+                .isSuccessful(true)
+                .path(httpServletRequest.getRequestURI())
+                .statusCode(HttpStatus.OK.value())
+                .timeStamp(ZonedDateTime.now())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
 

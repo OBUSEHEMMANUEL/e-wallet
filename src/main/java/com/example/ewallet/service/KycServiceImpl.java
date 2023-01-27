@@ -1,70 +1,36 @@
 package com.example.ewallet.service;
 
-import com.example.ewallet.data.models.Card;
 import com.example.ewallet.data.models.Kyc;
 import com.example.ewallet.data.models.User;
 import com.example.ewallet.data.repository.KycRepository;
-import com.example.ewallet.data.repository.UserRepository;
 import com.example.ewallet.dtos.request.KycRequest;
 import com.example.ewallet.dtos.request.KycUpdateRequest;
 import com.example.ewallet.dtos.response.KycResponse;
 import com.example.ewallet.dtos.response.KycUpdateResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 
 @Service
 public class KycServiceImpl implements KycService{
 
-    @Autowired
     private KycRepository kycRepository;
-    @Autowired
-    private UserRepository userRepository;
 
-    @Override
-    public KycResponse doKyc(KycRequest kycRequest) {
-        User user = userRepository.findById(kycRequest.getUserId())
-                .orElseThrow(()->new RuntimeException("You are not a registered user"));
-        boolean idExist = userRepository.findById(kycRequest.getUserId()).isPresent();
-        setKycDetails(kycRequest, idExist, user);
-        KycResponse kycResponse = new KycResponse();
-        kycResponse.setMessage("Thank you for completing the kyc process");
-        return kycResponse;
-    }
-
-    private void setKycDetails(KycRequest kycRequest, boolean idExist, User user) {
-        if (idExist) {
-            Kyc kyc = Kyc.builder()
-                    .bvn(kycRequest.getBvn())
-                    .card(kycRequest.getCard())
-                    .nextOfKin(kycRequest.getNextOfKin())
-                    .cardType(kycRequest.getCardType())
-                    .homeAddress(kycRequest.getHomeAddress())
-                    .build();
-            user.setCompletedKyc(true);
-            kyc.setUserId(user.getId());
-            kycRepository.save(kyc);
-            userRepository.save(user);
-        } else {
-            throw new RuntimeException("You can no longer complete the kyc process");
-        }
+    public KycServiceImpl(KycRepository kycRepository){
+        this.kycRepository = kycRepository;
     }
 
     @Override
-    public KycUpdateResponse updateKycDetails(KycUpdateRequest kycUpdateRequest) {
-       User user = userRepository.findById(kycUpdateRequest.getUserId())
-               .orElseThrow(()-> new RuntimeException("User does not exist"));
-       Kyc kyc = kycRepository.findById(kycUpdateRequest.getKycId())
-               .orElseThrow(()-> new RuntimeException("No kyc details found"));
-       if (user.getPassword().equals(kycUpdateRequest.getPassword())) {
-           kyc.setHomeAddress(kycUpdateRequest.getHomeAddress());
-           kyc.setCard(kycUpdateRequest.getCard());
-           kyc.setCardType(kycUpdateRequest.getCardType());
-           kyc.setNextOfKin(kycUpdateRequest.getNextOfKin());
-           kycRepository.save(kyc);
-       }
-        KycUpdateResponse kycUpdateResponse = new KycUpdateResponse();
-        kycUpdateResponse.setMessage("Updated");
-        return kycUpdateResponse;
+    public void saveKyc(Kyc kyc) {
+        kycRepository.save(kyc);
+    }
+
+    @Override
+    public Optional<Kyc> findKyc(String id) {
+        return kycRepository.findById(id);
     }
 }
