@@ -15,7 +15,6 @@ import java.util.Date;
 public class KycRequest {
     private String userId;
     private String bvn;
-    private Card card;
     private NextOfKin nextOfKin;
     private String homeAddress;
     private CardType cardType;

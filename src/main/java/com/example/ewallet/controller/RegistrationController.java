@@ -21,8 +21,12 @@ import java.time.ZonedDateTime;
 @RestController
 @RequestMapping(path = "/api/v1/registration")
 public class RegistrationController {
-    @Autowired
+
     private RegistrationService registrationService;
+    @Autowired
+    public RegistrationController(RegistrationService registrationService){
+        this.registrationService = registrationService;
+    }
 
     @PostMapping("register")
     public ResponseEntity<ApiResponse> register(@RequestBody RegistrationRequest registrationRequest, HttpServletRequest httpServletRequest) throws MessagingException {
@@ -45,7 +49,7 @@ public class RegistrationController {
                 .path(httpServletRequest.getRequestURI())
                 .isSuccessful(true)
                 .build();
-        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.OK);
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
     @PostMapping("forgottenPassword")
     public ResponseEntity<ApiResponse> forgottenPassword(@RequestBody ResendTokenRequest request,
@@ -70,6 +74,6 @@ public class RegistrationController {
                 .path(httpServletRequest.getRequestURI())
                 .isSuccessful(true)
                 .build();
-        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.OK);
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 }
