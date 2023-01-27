@@ -17,19 +17,20 @@ import java.time.LocalDateTime;
 
 @Service
 public class RegistrationServiceImpl implements RegistrationService{
-    @Autowired
+
     private UserService userService;
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private ConfirmationTokenService confirmationTokenService;
-
-    @Autowired
     private EmailSenderService emailSenderService;
 
+    @Autowired
+    public RegistrationServiceImpl(UserService userService, ConfirmationTokenService confirmationTokenService, EmailSenderService emailSenderService ){
+        this.confirmationTokenService = confirmationTokenService;
+        this.userService = userService;
+        this.emailSenderService = emailSenderService;
+    }
+
     public RegistrationResponse register(RegistrationRequest registrationRequest) throws MessagingException {
-        boolean emailExist = userRepository.findByEmailAddressIgnoreCase(registrationRequest.getEmailAddress()).isPresent();
+        boolean emailExist = userService.findUser(registrationRequest.getEmailAddress()).isPresent();
         if (emailExist) throw new IllegalStateException("Email Address Already Exist");
         User user = new User();
         user.setEmailAddress(registrationRequest.getEmailAddress());
@@ -56,20 +57,20 @@ public class RegistrationServiceImpl implements RegistrationService{
     }
     @Override
     public String ResendToken(ResendTokenRequest request) throws MessagingException {
-        var foundMail = userRepository.findByEmailAddressIgnoreCase(request.getEmailAddress())
+        var foundUser = userService.findUser(request.getEmailAddress())
                 .orElseThrow(() -> new RuntimeException("Email does not exist"));
 
-            var generatedToken = userService.generateToken(foundMail);
+            var generatedToken = userService.generateToken(foundUser);
             emailSenderService.send(request.getEmailAddress(),buildEmail(request.getEmailAddress(),generatedToken));
             return generatedToken;
        }
 
        @Override
     public String setPassword(SetPasswordRequest passwordRequest){
-        User user = userRepository.findByEmailAddressIgnoreCase(passwordRequest.getEmailAddress())
+        User user = userService.findUser(passwordRequest.getEmailAddress())
                 .orElseThrow(()->new RuntimeException("Email does not exist"));
         user.setPassword(passwordRequest.getNewPassword());
-        userRepository.save(user);
+        userService.saveUser(user);
         return "Password set Successfully";
     }
 

@@ -12,6 +12,5 @@ public class KycUpdateRequest {
     private String password;
     private NextOfKin nextOfKin;
     private String homeAddress;
-    private Card card;
     private CardType cardType;
 }
