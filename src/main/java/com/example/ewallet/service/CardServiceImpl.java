@@ -18,8 +18,13 @@ import java.util.Optional;
 
 @Service
 public class CardServiceImpl implements CardService{
-    @Autowired
+
     private CardRepository cardRepository;
+
+    @Autowired
+    public CardServiceImpl(CardRepository cardRepository){
+        this.cardRepository = cardRepository;
+    }
     @Override
     public void addCard(Card card) {
         cardRepository.save(card);

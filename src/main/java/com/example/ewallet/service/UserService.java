@@ -19,10 +19,9 @@ public interface UserService {
    String  generateToken(User user);
    AddCardResponse addCard(AddCardRequest addCardRequest);
 
-   Optional<User> findUser(String userId);
+   Optional<User> findUser(String userEmail);
 
-   void saveUser(User user);
-
+    void saveUser(User user);
    KycResponse doKyc(KycRequest kycRequest);
 
    KycUpdateResponse updateKyc(KycUpdateRequest kycUpdateRequest);

@@ -15,8 +15,13 @@ import java.time.ZonedDateTime;
 @RestController
 @RequestMapping(path = "/api/v1/registration")
 public class UserController {
-    @Autowired
+
     UserService userService;
+
+    @Autowired
+    public UserController(UserService userService){
+        this.userService = userService;
+    }
 
     @PostMapping("login")
     public ResponseEntity<ApiResponse> login(@RequestBody LoginRequest request, HttpServletRequest httpServletRequest) throws MessagingException {

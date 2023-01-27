@@ -9,7 +9,6 @@ import com.example.ewallet.dtos.request.*;
 import com.example.ewallet.dtos.response.*;
 import com.example.ewallet.utils.CreditCardValidator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -21,15 +20,18 @@ import java.util.Set;
 
 @Service
 public class UserServiceImpl implements UserService {
-    @Autowired
     private UserRepository userRepository;
-    @Autowired
     private CardService cardService;
-    @Autowired
     private KycService kycService;
+    private ConfirmationTokenService confirmationTokenService;
 
     @Autowired
-    private ConfirmationTokenService confirmationTokenService;
+    public UserServiceImpl(UserRepository userRepository, CardService cardService, KycService kycService, ConfirmationTokenService confirmationTokenService){
+        this.kycService = kycService;
+        this.userRepository = userRepository;
+        this.cardService = cardService;
+        this.confirmationTokenService = confirmationTokenService;
+    }
 
 
     @Override
@@ -59,16 +61,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AddCardResponse addCard(AddCardRequest addCardRequest) {
-        var user=userRepository.findById(addCardRequest.getUserId()).get();
-        boolean cardExist = cardService.findCard(addCardRequest.getCard().getCardNo()).isPresent();
+        var optionalUser=userRepository.findById(addCardRequest.getUserId());
+        boolean cardExist = cardService.findCard(addCardRequest
+                .getCard().getCardNo()).isPresent();
 
         if (cardExist) {
             throw new RuntimeException("Card already exist");
         } else {
             CreditCardValidator.isValidCreditCard(addCardRequest.getCard());
             cardService.addCard(addCardRequest.getCard());
-            user.getUserCards().add(addCardRequest.getCard());
-            userRepository.save(user);
+            if (optionalUser.isPresent()){
+                User user = optionalUser.get();
+                user.getUserCards().add(addCardRequest.getCard());
+                userRepository.save(user);
+            }
+
         }
 
         AddCardResponse response = new AddCardResponse();
@@ -78,14 +85,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> findUser(String userId) {
-        return userRepository.findById(userId);
+    public Optional<User> findUser(String userEmail) {
+        return userRepository.findByEmailAddressIgnoreCase(userEmail);
     }
 
     @Override
     public void saveUser(User user) {
         userRepository.save(user);
     }
+
 
     @Override
     public KycResponse doKyc(KycRequest kycRequest) {
@@ -136,9 +144,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UpdateCardResponse updateCard(UpdateCardRequest updateCardRequest) {
-        var user=userRepository.findById(updateCardRequest.getUserId()).orElseThrow(()-> new RuntimeException("User not found"));
+        var user=userRepository.findById(updateCardRequest.getUserId())
+                .orElseThrow(()-> new RuntimeException("User not found"));
        var foundCard = cardService.findByCardId(updateCardRequest.getCard().getCardId());
-        boolean isCardExist = cardService.findCard(updateCardRequest.getCard().getCardNo()).isPresent();
+        boolean isCardExist = cardService.findCard(updateCardRequest.getCard()
+                .getCardNo()).isPresent();
 
         if (!isCardExist) {
             throw new RuntimeException("Card does not exist");
@@ -160,7 +170,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Set<Card> findUserCards(String userId) {
-         var user = userRepository.findById(userId).orElseThrow(()-> new IllegalStateException("User Not Found"));
+         var user = userRepository.findById(userId)
+                 .orElseThrow(()-> new IllegalStateException("User Not Found"));
         return user.getUserCards();
     }
 
@@ -183,7 +194,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void enableUser(String emailAddress) {
-     var user =   userRepository.findByEmailAddressIgnoreCase(emailAddress).orElseThrow(()-> new RuntimeException("email not found"));
+     var user =   userRepository.findByEmailAddressIgnoreCase(emailAddress)
+             .orElseThrow(()-> new RuntimeException("email not found"));
      user.setDisabled(false);
     }
 
