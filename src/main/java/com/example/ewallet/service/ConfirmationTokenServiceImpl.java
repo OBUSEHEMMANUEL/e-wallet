@@ -13,7 +13,7 @@ public class ConfirmationTokenServiceImpl implements ConfirmationTokenService{
 
     private ConfirmationTokenRepository confirmationTokenRepository;
 
-    @Autowired
+
     public ConfirmationTokenServiceImpl(ConfirmationTokenRepository confirmationTokenRepository){
         this.confirmationTokenRepository = confirmationTokenRepository;
     }

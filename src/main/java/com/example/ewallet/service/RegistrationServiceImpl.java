@@ -22,7 +22,7 @@ public class RegistrationServiceImpl implements RegistrationService{
     private ConfirmationTokenService confirmationTokenService;
     private EmailSenderService emailSenderService;
 
-    @Autowired
+
     public RegistrationServiceImpl(UserService userService, ConfirmationTokenService confirmationTokenService, EmailSenderService emailSenderService ){
         this.confirmationTokenService = confirmationTokenService;
         this.userService = userService;
