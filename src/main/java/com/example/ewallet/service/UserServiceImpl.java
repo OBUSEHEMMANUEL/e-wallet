@@ -8,11 +8,16 @@ import com.example.ewallet.data.repository.UserRepository;
 import com.example.ewallet.dtos.request.*;
 import com.example.ewallet.dtos.response.*;
 import com.example.ewallet.utils.CreditCardValidator;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+import com.squareup.okhttp.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -24,6 +29,8 @@ public class UserServiceImpl implements UserService {
     private CardService cardService;
     private KycService kycService;
     private ConfirmationTokenService confirmationTokenService;
+
+    private final String SECRET_KEY = System.getenv("YOUR_SECRET_KEY");
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, CardService cardService, KycService kycService, ConfirmationTokenService confirmationTokenService){
@@ -41,6 +48,8 @@ public class UserServiceImpl implements UserService {
         return generateToken(user);
     }
 
+
+
     @Override
     public String generateToken(User user) {
         StringBuilder tok = new StringBuilder();
@@ -57,6 +66,28 @@ public class UserServiceImpl implements UserService {
         confirmationToken.setUser(user);
         confirmationTokenService.saveConfirmationToken(confirmationToken);
         return token.toString();
+    }
+
+    @Override
+    public VerificationResponse verifyRecieversAccount(AccountVerificatonRequest verificatonRequest) throws IOException {
+
+
+         OkHttpClient client = new OkHttpClient();
+         Request request = new Request.Builder()
+                 .url("https://api.paystack.co/bank/resolve?account_number=" + verificatonRequest.getAccountNo() +
+                         "&bank_code=" + verificatonRequest.getBankCode())
+                 .get()
+                 .addHeader("Authorization","Bearer "+SECRET_KEY)
+                 .build();
+
+         try (ResponseBody response = client.newCall(request).execute().body()) {
+
+             VerificationResponse verificationResponse = new VerificationResponse();
+             verificationResponse.setMessage(response.string());
+             verificationResponse.setStatusCode(HttpStatus.ACCEPTED);
+
+             return verificationResponse;
+         }
     }
 
     @Override

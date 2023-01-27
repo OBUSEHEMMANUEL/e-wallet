@@ -5,6 +5,7 @@ import com.example.ewallet.data.models.User;
 import com.example.ewallet.dtos.request.*;
 import com.example.ewallet.dtos.response.*;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 
@@ -17,6 +18,8 @@ public interface UserService {
     String changePassword(ChangePasswordRequest changePasswordRequest);
 
    String  generateToken(User user);
+
+   VerificationResponse verifyRecieversAccount(AccountVerificatonRequest verificatonRequest) throws IOException;
    AddCardResponse addCard(AddCardRequest addCardRequest);
 
    Optional<User> findUser(String userEmail);
