@@ -11,6 +11,7 @@ import com.example.ewallet.utils.CreditCardValidator;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+import com.squareup.okhttp.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -69,6 +70,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public VerificationResponse verifyRecieversAccount(AccountVerificatonRequest verificatonRequest) throws IOException {
+
+
          OkHttpClient client = new OkHttpClient();
          Request request = new Request.Builder()
                  .url("https://api.paystack.co/bank/resolve?account_number=" + verificatonRequest.getAccountNo() +
@@ -77,13 +80,14 @@ public class UserServiceImpl implements UserService {
                  .addHeader("Authorization","Bearer "+SECRET_KEY)
                  .build();
 
-         Response response = client.newCall(request).execute();
+         try (ResponseBody response = client.newCall(request).execute().body()) {
 
-         VerificationResponse verificationResponse = new VerificationResponse();
-         verificationResponse.setMessage(response.body().string());
-         verificationResponse.setStatusCode(HttpStatus.ACCEPTED);
+             VerificationResponse verificationResponse = new VerificationResponse();
+             verificationResponse.setMessage(response.string());
+             verificationResponse.setStatusCode(HttpStatus.ACCEPTED);
 
-        return verificationResponse;
+             return verificationResponse;
+         }
     }
 
     @Override
