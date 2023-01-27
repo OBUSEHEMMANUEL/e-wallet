@@ -10,10 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.ZonedDateTime;
 
 @RestController
-@RequestMapping(path = "/api/v1/registration")
+@RequestMapping(path = "/api/v1/user")
 public class UserController {
 
     UserService userService;
@@ -121,6 +122,19 @@ public class UserController {
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
+
+    @GetMapping("/verifyAccount")
+    public ResponseEntity<ApiResponse> verifyAccount(@RequestBody AccountVerificatonRequest verificatonRequest, HttpServletRequest httpServletRequest) throws IOException {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .data(userService.verifyRecieversAccount(verificatonRequest))
+                .isSuccessful(true)
+                .path(httpServletRequest.getRequestURI())
+                .statusCode(HttpStatus.OK.value())
+                .timeStamp(ZonedDateTime.now())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
 
 
 }
