@@ -3,17 +3,16 @@ package com.example.ewallet.service;
 import com.example.ewallet.data.models.Card;
 import com.example.ewallet.data.repository.CardRepository;
 import com.example.ewallet.dtos.request.AddCardRequest;
-import com.example.ewallet.dtos.request.DeleteCardRequest;
-import com.example.ewallet.dtos.request.UpdateCardRequest;
-import com.example.ewallet.dtos.response.AddCardResponse;
-import com.example.ewallet.dtos.response.DeleteCardResponse;
-import com.example.ewallet.dtos.response.UpdateCardResponse;
-import com.example.ewallet.utils.CreditCardValidator;
-import org.hibernate.validator.internal.util.stereotypes.Lazy;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import com.example.ewallet.dtos.response.*;
+import com.example.ewallet.utils.InvalidCreditCardNumberException;
+import com.google.gson.Gson;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.ResponseBody;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -21,6 +20,7 @@ public class CardServiceImpl implements CardService{
 
     private CardRepository cardRepository;
 
+    private final String SECRET_KEY = System.getenv("YOUR_SECRET_KEY");
 
     public CardServiceImpl(CardRepository cardRepository){
         this.cardRepository = cardRepository;
@@ -43,4 +43,24 @@ public class CardServiceImpl implements CardService{
     public void deleteCard(String id) {
         cardRepository.deleteById(id);
     }
+
+    @Override
+    public CardValidationResponse validateCreditCard(AddCardRequest addCardRequest) throws IOException {
+        OkHttpClient httpClient = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url("https://api.paystack.co/decision/bin/"
+                        + addCardRequest.getCard().getCardNo().substring(0, 6))
+                .get()
+                .addHeader("Authorization", "Bearer " + SECRET_KEY)
+                .build();
+        try (ResponseBody response = httpClient.newCall(request).execute().body()) {
+            Gson gson = new Gson();
+            CardValidationResponse cardValidationResponse = gson.fromJson(response.string(), CardValidationResponse.class);
+
+            if (Objects.equals(cardValidationResponse.getData().getCard_type(), "")) throw new InvalidCreditCardNumberException("Invalid card");
+            return cardValidationResponse;
+        }
+    }
+
 }

@@ -19,8 +19,8 @@ public interface UserService {
 
    String  generateToken(User user);
 
-   VerificationResponse verifyRecieversAccount(AccountVerificatonRequest verificatonRequest) throws IOException;
-   AddCardResponse addCard(AddCardRequest addCardRequest);
+   VerificationResponse verifyRecieversAccount(AccountVerificationRequest verificationRequest) throws IOException;
+   AddCardResponse addCard(AddCardRequest addCardRequest) throws IOException;
 
    Optional<User> findUser(String userEmail);
 
@@ -34,5 +34,9 @@ public interface UserService {
 
     Set<Card> findUserCards(String id);
     DeleteCardResponse deleteCard(DeleteCardRequest deleteCardRequest);
+
+    CreateRecipientResponse createRecipient(CreateTransferRecipient createTransferRecipient) throws IOException;
+
+
 }
 
