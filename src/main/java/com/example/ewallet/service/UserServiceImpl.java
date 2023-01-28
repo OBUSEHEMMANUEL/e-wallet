@@ -73,12 +73,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public VerificationResponse verifyRecieversAccount(AccountVerificatonRequest verificatonRequest) throws IOException {
+    public VerificationResponse verifyRecieversAccount(AccountVerificationRequest verificationRequest) throws IOException {
 
          OkHttpClient client = new OkHttpClient();
          Request request = new Request.Builder()
-                 .url("https://api.paystack.co/bank/resolve?account_number=" + verificatonRequest.getAccountNo() +
-                         "&bank_code=" + verificatonRequest.getBankCode())
+                 .url("https://api.paystack.co/bank/resolve?account_number=" + verificationRequest.getAccountNo() +
+                         "&bank_code=" + verificationRequest.getBankCode())
                  .get()
                  .addHeader("Authorization","Bearer "+SECRET_KEY)
                  .build();
@@ -226,7 +226,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String createRecipient(CreateTransferRecipient createTransferRecipient) throws IOException {
+    public CreateRecipientResponse createRecipient(CreateTransferRecipient createTransferRecipient) throws IOException {
         OkHttpClient okHttpClient = new OkHttpClient();
         JSONObject jsonObject = new JSONObject();
         try {
@@ -247,8 +247,13 @@ public class UserServiceImpl implements UserService {
                 .addHeader("Content-Type", "application/json")
                 .build();
 
-        Response response = okHttpClient.newCall(request).execute();
-        return response.body().string();
+
+        try (ResponseBody response = okHttpClient.newCall(request).execute().body()){
+            Gson gson = new Gson();
+            CreateRecipientResponse createRecipientResponse = gson.fromJson(response.string(), CreateRecipientResponse.class);
+            if (createRecipientResponse.getData() == null) throw new RuntimeException("Invalid account");
+            return  createRecipientResponse;
+        }
     }
 
     @Override

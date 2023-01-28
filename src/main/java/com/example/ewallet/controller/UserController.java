@@ -127,9 +127,9 @@ public class UserController {
     }
 
     @GetMapping("/verifyAccount")
-    public ResponseEntity<ApiResponse> verifyAccount(@RequestBody AccountVerificatonRequest verificatonRequest, HttpServletRequest httpServletRequest) throws IOException {
+    public ResponseEntity<ApiResponse> verifyAccount(@RequestBody AccountVerificationRequest verificationRequest, HttpServletRequest httpServletRequest) throws IOException {
         ApiResponse apiResponse = ApiResponse.builder()
-                .data(userService.verifyRecieversAccount(verificatonRequest))
+                .data(userService.verifyRecieversAccount(verificationRequest))
                 .isSuccessful(true)
                 .path(httpServletRequest.getRequestURI())
                 .statusCode(HttpStatus.OK.value())

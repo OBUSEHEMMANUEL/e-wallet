@@ -1,4 +1,4 @@
-package com.example.ewallet.dtos.response;
+package com.example.ewallet.data.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

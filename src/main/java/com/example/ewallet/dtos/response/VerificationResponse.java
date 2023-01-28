@@ -1,6 +1,7 @@
 package com.example.ewallet.dtos.response;
 
 
+import com.example.ewallet.data.models.RecipientAccountData;
 import lombok.Data;
 
 @Data
