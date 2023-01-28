@@ -59,7 +59,6 @@ public class CardServiceImpl implements CardService{
             CardValidationResponse cardValidationResponse = gson.fromJson(response.string(), CardValidationResponse.class);
 
             if (Objects.equals(cardValidationResponse.getData().getCard_type(), "")) throw new InvalidCreditCardNumberException("Invalid card");
-
             return cardValidationResponse;
         }
     }
