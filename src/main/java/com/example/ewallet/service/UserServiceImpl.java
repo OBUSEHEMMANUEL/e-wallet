@@ -8,10 +8,14 @@ import com.example.ewallet.data.repository.UserRepository;
 import com.example.ewallet.dtos.request.*;
 import com.example.ewallet.dtos.response.*;
 import com.example.ewallet.utils.CreditCardValidator;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-import com.squareup.okhttp.ResponseBody;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.squareup.okhttp.*;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONPointer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -78,19 +82,18 @@ public class UserServiceImpl implements UserService {
                  .get()
                  .addHeader("Authorization","Bearer "+SECRET_KEY)
                  .build();
-
          try (ResponseBody response = client.newCall(request).execute().body()) {
-
-             VerificationResponse verificationResponse = new VerificationResponse();
-             verificationResponse.setMessage(response.string());
-             verificationResponse.setStatusCode(HttpStatus.ACCEPTED);
-
+             Gson gson = new Gson();
+             VerificationResponse verificationResponse = gson.fromJson(response.string(), VerificationResponse.class);
+             if (verificationResponse.getData() == null) throw new RuntimeException("Invalid account number");
              return verificationResponse;
          }
     }
 
+
+
     @Override
-    public AddCardResponse addCard(AddCardRequest addCardRequest) {
+    public AddCardResponse addCard(AddCardRequest addCardRequest) throws IOException {
         var optionalUser=userRepository.findById(addCardRequest.getUserId());
         boolean cardExist = cardService.findCard(addCardRequest
                 .getCard().getCardNo()).isPresent();
@@ -98,14 +101,13 @@ public class UserServiceImpl implements UserService {
         if (cardExist) {
             throw new RuntimeException("Card already exist");
         } else {
-            CreditCardValidator.isValidCreditCard(addCardRequest.getCard());
+            cardService.validateCreditCard(addCardRequest);
             cardService.addCard(addCardRequest.getCard());
             if (optionalUser.isPresent()){
                 User user = optionalUser.get();
                 user.getUserCards().add(addCardRequest.getCard());
                 userRepository.save(user);
             }
-
         }
 
         AddCardResponse response = new AddCardResponse();
@@ -140,6 +142,7 @@ public class UserServiceImpl implements UserService {
     private void setKycDetails(KycRequest kycRequest, boolean idExist, User user) {
         if (idExist && !user.isCompletedKyc()) {
             Kyc kyc = Kyc.builder()
+                    .bvn(kycRequest.getBvn())
                     .nextOfKin(kycRequest.getNextOfKin())
                     .cardType(kycRequest.getCardType())
                     .homeAddress(kycRequest.getHomeAddress())
@@ -220,6 +223,32 @@ public class UserServiceImpl implements UserService {
         deleteCardResponse.setStatusCode(HttpStatus.OK);
         deleteCardResponse.setMessage("Card deleted successfully");
         return deleteCardResponse;
+    }
+
+    @Override
+    public String createRecipient(CreateTransferRecipient createTransferRecipient) throws IOException {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("type", createTransferRecipient.getType());
+            jsonObject.put("name", createTransferRecipient.getName());
+            jsonObject.put("account_number", createTransferRecipient.getAccount_number());
+            jsonObject.put("bank_code", createTransferRecipient.getBank_code());
+            jsonObject.put("currency", createTransferRecipient.getCurrency());
+        }catch (JSONException ex){
+            System.out.print(ex.getMessage());
+        }
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody requestBody = RequestBody.create(mediaType, jsonObject.toString());
+        Request request = new Request.Builder()
+                .url("https://api.paystack.co/transferrecipient")
+                .post(requestBody)
+                .addHeader("Authorization", "Bearer "+SECRET_KEY)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        Response response = okHttpClient.newCall(request).execute();
+        return response.body().string();
     }
 
     @Override

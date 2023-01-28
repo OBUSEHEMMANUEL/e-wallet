@@ -1,8 +1,12 @@
 package com.example.ewallet.dtos.response;
 
 
+import lombok.Data;
 
-public class VerificationResponse extends ResponseClass{
-
+@Data
+public class VerificationResponse{
+    private String status;
+    private String message;
+    private RecipientAccountData data;
 
 }

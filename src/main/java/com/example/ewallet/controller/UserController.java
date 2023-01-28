@@ -1,6 +1,7 @@
 package com.example.ewallet.controller;
 
 import com.example.ewallet.dtos.request.*;
+import com.example.ewallet.service.CardService;
 import com.example.ewallet.service.UserService;
 import com.example.ewallet.utils.ApiResponse;
 import jakarta.mail.MessagingException;
@@ -18,9 +19,11 @@ import java.time.ZonedDateTime;
 public class UserController {
 
     UserService userService;
+    CardService cardService;
 
 
-    public UserController(UserService userService){
+    public UserController(UserService userService, CardService cardService){
+        this.cardService = cardService;
         this.userService = userService;
     }
 
@@ -48,7 +51,7 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     @PostMapping("addCard")
-    public ResponseEntity<ApiResponse> addCard(@RequestBody AddCardRequest addCardRequest, HttpServletRequest httpServletRequest){
+    public ResponseEntity<ApiResponse> addCard(@RequestBody AddCardRequest addCardRequest, HttpServletRequest httpServletRequest) throws IOException {
         ApiResponse response = ApiResponse.builder()
                 .statusCode(HttpStatus.OK.value())
                 .data(userService.addCard(addCardRequest))
@@ -127,6 +130,30 @@ public class UserController {
     public ResponseEntity<ApiResponse> verifyAccount(@RequestBody AccountVerificatonRequest verificatonRequest, HttpServletRequest httpServletRequest) throws IOException {
         ApiResponse apiResponse = ApiResponse.builder()
                 .data(userService.verifyRecieversAccount(verificatonRequest))
+                .isSuccessful(true)
+                .path(httpServletRequest.getRequestURI())
+                .statusCode(HttpStatus.OK.value())
+                .timeStamp(ZonedDateTime.now())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/verifyCard")
+    public ResponseEntity<ApiResponse> verifyAccount(@RequestBody AddCardRequest addCardRequest, HttpServletRequest httpServletRequest) throws IOException {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .data(cardService.validateCreditCard(addCardRequest))
+                .isSuccessful(true)
+                .path(httpServletRequest.getRequestURI())
+                .statusCode(HttpStatus.OK.value())
+                .timeStamp(ZonedDateTime.now())
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @PostMapping("/creation")
+    public ResponseEntity<ApiResponse> createRecipient(@RequestBody CreateTransferRecipient createTransferRecipient, HttpServletRequest httpServletRequest) throws IOException {
+        ApiResponse apiResponse = ApiResponse.builder()
+                .data(userService.createRecipient(createTransferRecipient))
                 .isSuccessful(true)
                 .path(httpServletRequest.getRequestURI())
                 .statusCode(HttpStatus.OK.value())
