@@ -1,6 +1,7 @@
 package com.example.ewallet.data.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
@@ -22,6 +23,7 @@ public class Kyc {
     private String userId;
     @Id
     private String id;
+    @JsonIgnore
     @NotBlank(message = "Bvn is required")
     @Pattern(regexp = "\\d{11}")
     private String bvn;
