@@ -258,7 +258,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String initiateTransfer(InitiateTransferRequest transferRequest) throws IOException {
+    public InitiateTransferResponse initiateTransfer(InitiateTransferRequest transferRequest) throws IOException {
         OkHttpClient okHttpClient = new OkHttpClient();
         JSONObject jsonObject = new JSONObject();
         try {
@@ -278,8 +278,12 @@ public class UserServiceImpl implements UserService {
                 .addHeader("Authorization", "Bearer "+SECRET_KEY)
                 .addHeader("Content-Type", "application/json")
                 .build();
-        ResponseBody response = okHttpClient.newCall(request).execute().body();
-        return response.string();
+        try (ResponseBody response = okHttpClient.newCall(request).execute().body()){
+            Gson gson = new Gson();
+            InitiateTransferResponse initiateTransferResponse = gson.fromJson(response.string(), InitiateTransferResponse.class);
+
+            return  initiateTransferResponse;
+        }
     }
 
 
