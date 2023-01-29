@@ -1,2 +1,6 @@
-package com.example.ewallet.dtos.response;public class InitiateTransferResponse {
+package com.example.ewallet.dtos.response;
+
+public class InitiateTransferResponse{
+
+
 }
