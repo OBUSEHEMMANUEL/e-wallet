@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.squareup.okhttp.*;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONPointer;
@@ -26,7 +27,7 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
-
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
@@ -255,6 +256,36 @@ public class UserServiceImpl implements UserService {
             return  createRecipientResponse;
         }
     }
+
+    @Override
+    public InitiateTransferResponse initiateTransfer(InitiateTransferRequest transferRequest) throws IOException {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("source", transferRequest.getSource());
+            jsonObject.put("amount", transferRequest.getAmount());
+            jsonObject.put("reference", transferRequest.getReference());
+            jsonObject.put("recipient", transferRequest.getRecipient());
+            jsonObject.put("reason", transferRequest.getReason());
+        }catch (JSONException ex){
+            log.info(ex.getMessage());
+        }
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody requestBody = RequestBody.create(mediaType, jsonObject.toString());
+        Request request = new Request.Builder()
+                .url("https://api.paystack.co/transfer")
+                .post(requestBody)
+                .addHeader("Authorization", "Bearer "+SECRET_KEY)
+                .addHeader("Content-Type", "application/json")
+                .build();
+        try (ResponseBody response = okHttpClient.newCall(request).execute().body()){
+            Gson gson = new Gson();
+            InitiateTransferResponse initiateTransferResponse = gson.fromJson(response.string(), InitiateTransferResponse.class);
+
+            return  initiateTransferResponse;
+        }
+    }
+
 
     @Override
     public void enableUser(String emailAddress) {

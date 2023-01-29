@@ -37,6 +37,6 @@ public interface UserService {
 
     CreateRecipientResponse createRecipient(CreateTransferRecipient createTransferRecipient) throws IOException;
 
-
+    InitiateTransferResponse initiateTransfer(InitiateTransferRequest transferRequest) throws IOException;
 }
 

@@ -2,6 +2,7 @@ package com.example.ewallet.service;
 
 import com.example.ewallet.dtos.request.RegistrationRequest;
 import com.example.ewallet.dtos.response.RegistrationResponse;
+import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ class RegistrationServiceImplTest {
     }
 
     @Test
-    void register() {
+    void register() throws MessagingException {
         RegistrationRequest registrationRequest = new RegistrationRequest();
         registrationRequest.setEmailAddress("me@gmail.com");
         registrationRequest.setFirstName("Habeeb");
