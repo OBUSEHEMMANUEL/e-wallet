@@ -24,6 +24,8 @@ public interface UserService {
 
    Optional<User> findUser(String userEmail);
 
+   Optional<User> findUserById(String userId);
+
     void saveUser(User user);
    KycResponse doKyc(KycRequest kycRequest);
 
