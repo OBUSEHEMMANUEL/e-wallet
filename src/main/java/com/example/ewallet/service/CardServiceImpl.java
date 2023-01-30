@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.ResponseBody;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -18,13 +19,11 @@ import java.util.Optional;
 @Service
 public class CardServiceImpl implements CardService{
 
+    @Autowired
     private CardRepository cardRepository;
 
     private final String SECRET_KEY = System.getenv("YOUR_SECRET_KEY");
 
-    public CardServiceImpl(CardRepository cardRepository){
-        this.cardRepository = cardRepository;
-    }
     @Override
     public void addCard(Card card) {
         cardRepository.save(card);
