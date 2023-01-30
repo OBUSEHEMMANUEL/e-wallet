@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
@@ -23,7 +24,7 @@ public class Kyc {
     private String userId;
     @Id
     private String id;
-    @JsonIgnore
+    @Transient
     @NotBlank(message = "Bvn is required")
     @Pattern(regexp = "\\d{11}")
     private String bvn;

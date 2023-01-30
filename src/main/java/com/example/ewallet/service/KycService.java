@@ -14,4 +14,6 @@ public interface KycService {
 
    Optional<Kyc> findKyc(String id);
 
+   Kyc findKycByUserId(String userId);
+
 }
