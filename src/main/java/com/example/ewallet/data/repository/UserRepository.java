@@ -9,6 +9,7 @@ import java.util.Set;
 
 public interface UserRepository extends MongoRepository<User, String>{
     Optional<User> findByEmailAddressIgnoreCase(String emailAddress);
+
 //    @Transactional
 //    @Query("UPDATE User user " +
 //            "SET user.isDisabled = false" +
