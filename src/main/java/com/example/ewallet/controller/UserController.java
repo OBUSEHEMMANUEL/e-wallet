@@ -139,7 +139,7 @@ public class UserController {
     }
 
     @GetMapping("/verifyCard")
-    public ResponseEntity<ApiResponse> verifyAccount(@RequestBody AddCardRequest addCardRequest, HttpServletRequest httpServletRequest) throws IOException {
+    public ResponseEntity<ApiResponse> verifyCard(@RequestBody AddCardRequest addCardRequest, HttpServletRequest httpServletRequest) throws IOException {
         ApiResponse apiResponse = ApiResponse.builder()
                 .data(cardService.validateCreditCard(addCardRequest))
                 .isSuccessful(true)
