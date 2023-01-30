@@ -8,4 +8,5 @@ import java.util.Optional;
 
 public interface KycRepository extends MongoRepository<Kyc, String> {
     Optional<Kyc> findById(String id);
+    Kyc findByUserId(String userId);
 }
