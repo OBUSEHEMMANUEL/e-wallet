@@ -33,4 +33,9 @@ public class KycServiceImpl implements KycService{
     public Optional<Kyc> findKyc(String id) {
         return kycRepository.findById(id);
     }
+
+    @Override
+    public Kyc findKycByUserId(String userId) {
+        return kycRepository.findByUserId(userId);
+    }
 }
