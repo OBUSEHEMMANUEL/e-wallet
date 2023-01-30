@@ -56,7 +56,7 @@ public class RegistrationServiceImpl implements RegistrationService{
         return "confirmed";
     }
     @Override
-    public String ResendToken(ResendTokenRequest request) throws MessagingException {
+    public String resendToken(ResendTokenRequest request) throws MessagingException {
         var foundUser = userService.findUser(request.getEmailAddress())
                 .orElseThrow(() -> new RuntimeException("Email does not exist"));
 
