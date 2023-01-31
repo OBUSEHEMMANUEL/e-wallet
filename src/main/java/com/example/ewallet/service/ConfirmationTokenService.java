@@ -10,4 +10,5 @@ public interface ConfirmationTokenService {
     Optional<ConfirmationToken> getConfirmationToken(String token);
     void deleteExpiredToken();
     void setConfirmed(String token);
+    ConfirmationToken findTokenByUserId(String id);
 }

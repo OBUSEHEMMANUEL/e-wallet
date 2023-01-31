@@ -17,17 +17,19 @@ import java.time.LocalDateTime;
 
 @Service
 public class RegistrationServiceImpl implements RegistrationService{
-
+@Autowired
     private UserService userService;
+@Autowired
     private ConfirmationTokenService confirmationTokenService;
+@Autowired
     private EmailSenderService emailSenderService;
 
 
-    public RegistrationServiceImpl(UserService userService, ConfirmationTokenService confirmationTokenService, EmailSenderService emailSenderService ){
-        this.confirmationTokenService = confirmationTokenService;
-        this.userService = userService;
-        this.emailSenderService = emailSenderService;
-    }
+//    public RegistrationServiceImpl(UserService userService, ConfirmationTokenService confirmationTokenService, EmailSenderService emailSenderService ){
+//        this.confirmationTokenService = confirmationTokenService;
+//        this.userService = userService;
+//        this.emailSenderService = emailSenderService;
+//    }
 
     public RegistrationResponse register(RegistrationRequest registrationRequest) throws MessagingException {
         boolean emailExist = userService.findUser(registrationRequest.getEmailAddress()).isPresent();

@@ -71,13 +71,13 @@ public class KycServiceImplTest {
 
     @Test
     public void findKyc() {
-        Kyc kyc = kycService.findKyc("63d7142be63cde4ac068e2de").get();
+        Kyc kyc = kycService.findKyc("63d76e814205541a24a3099f").get();
         assertNotNull(kyc);
     }
 
     @Test
     public void findKycByUserId() {
-        Kyc kyc = kycService.findKycByUserId("63d732024c858c17fc6b5ac7");
+        Kyc kyc = kycService.findKycByUserId("63d713c7a475f56a05e69137");
         assertNotNull(kyc);
     }
 

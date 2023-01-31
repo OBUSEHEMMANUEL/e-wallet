@@ -1,9 +1,13 @@
 package com.example.ewallet.service;
 
 import com.example.ewallet.data.models.Card;
+import com.example.ewallet.data.models.User;
 import com.example.ewallet.data.repository.CardRepository;
 import com.example.ewallet.dtos.request.AddCardRequest;
+import com.example.ewallet.dtos.request.RegistrationRequest;
 import com.example.ewallet.dtos.response.CardValidationResponse;
+import com.example.ewallet.utils.InvalidCreditCardNumberException;
+import jakarta.mail.MessagingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,43 +22,57 @@ import static org.junit.jupiter.api.Assertions.*;
 class CardServiceImplTest {
     @Autowired
     private CardService cardService;
-
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private RegistrationService registrationService;
     @Test
-    void addCard() {
+    void addCard() throws MessagingException, IOException {
         Card card = new Card();
-        card.setCardNo("1234567899991444");
-        card.setCardName("Gamos Ramos");
-        card.setCvv("789");
-        card.setExpireDate("4/23");
+        card.setCardNo("4920690019097291");
+        card.setCardName("Ahmad Ajibola");
+        card.setCvv("802");
         cardService.addCard(card);
-        Optional<Card> foundCard = cardService.findCard("1234567899991444");
-        assertEquals("Gamos Ramos", foundCard.get().getCardName());
-    }
-
-
-    @Test
-    void findByCardId() {
-        Card foundCard = cardService.findByCardId("63d7149d8bc78600b35ad5f1");
-        assertEquals("Gamos Ramos", foundCard.getCardName());
+        Optional<Card> foundCard = cardService.findCard("4920690019097291");
+        assertEquals("Ahmad Ajibola", foundCard.get().getCardName());
     }
 
     @Test
-    void deleteCard() {
-        cardService.deleteCard("63d7149d8bc78600b35ad5f1");
-        Optional<Card> foundCard = cardService.findCard("1234567899991444");
-        assertEquals(Optional.empty(), foundCard);
+    void testThatInvalidCardExceptionIsThrownWhenAddingInvalidCard() throws MessagingException {
+        Card card = new Card();
+        card.setCardNo("1234123412341234");
+        card.setCardName("Free card");
+        card.setCvv("105");
+        card.setExpireDate("1/25");
+        AddCardRequest addCardRequest = new AddCardRequest();
+        addCardRequest.setCard(card);
+        assertThrows(InvalidCreditCardNumberException.class,()->cardService.validateCreditCard(addCardRequest));
+    }
+    @Test
+    void findByCardId() throws IOException {
+        Card card = new Card();
+        card.setCardNo("4920690119097293");
+        card.setCardName("Ahmad Ajibola");
+        card.setCvv("802");
+        card.setExpireDate("1/25");
+        cardService.addCard(card);
+        Optional<Card> foundCard = cardService.findCard(card.getCardNo());
+        Card found = cardService.findByCardId(foundCard.get().getCardId());
+        assertEquals("Ahmad Ajibola", found.getCardName());
     }
 
-//    @Test
-//    void validateCreditCard() throws IOException {
-//        Card card = new Card();
-//        card.setCardNo("4920690019097290");
-//        card.setCardName("Ahmad CCCC");
-//        card.setCvv("702");
-//        card.setExpireDate("01/25");
-//        AddCardRequest addCardRequest = new AddCardRequest();
-//        addCardRequest.setCard(card);
-//        addCardRequest.setUserId("63d6fdab5d9a237a03b839b7");
-//        CardValidationResponse response = cardService.validateCreditCard(addCardRequest);
-//    }
+    @Test
+    void deleteCard() throws IOException {
+        Card card = new Card();
+        card.setCardNo("4920690117095293");
+        card.setCardName("Ahmad Ajibola");
+        card.setCvv("802");
+        card.setExpireDate("1/25");
+        cardService.addCard(card);
+        Optional<Card> foundCard = cardService.findCard(card.getCardNo());
+        cardService.deleteCard(foundCard.get().getCardId());
+        Optional<Card> deletedCard = cardService.findCard(card.getCardNo());
+        assertEquals(Optional.empty(), deletedCard);
+    }
+
 }

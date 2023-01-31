@@ -8,7 +8,8 @@ import java.io.IOException;
 import java.util.Optional;
 
 public interface CardService {
-   void addCard(Card card);
+   void addCard(AddCardRequest addCardRequest) throws IOException;
+   void addCard(Card card) throws IOException;
    Optional<Card> findCard(String cardNo);
    Card findByCardId(String cardId);
    void deleteCard(String id);
