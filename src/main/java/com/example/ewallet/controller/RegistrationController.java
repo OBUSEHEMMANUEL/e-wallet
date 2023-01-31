@@ -56,7 +56,7 @@ public class RegistrationController {
                                                          HttpServletRequest httpServletRequest) throws MessagingException {
         ApiResponse response = ApiResponse.builder()
                 .statusCode(HttpStatus.OK.value())
-                .data(registrationService.ResendToken(request))
+                .data(registrationService.resendToken(request))
                 .timeStamp(ZonedDateTime.now())
                 .path(httpServletRequest.getRequestURI())
                 .isSuccessful(true)

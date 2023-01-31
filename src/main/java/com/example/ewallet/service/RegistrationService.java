@@ -10,7 +10,7 @@ import jakarta.mail.MessagingException;
 public interface RegistrationService {
     RegistrationResponse register(RegistrationRequest registrationRequest) throws MessagingException;
     String confirmToken(ConfirmTokenRequest confirmationToken);
-    String ResendToken(ResendTokenRequest request) throws MessagingException;
+    String resendToken(ResendTokenRequest request) throws MessagingException;
 
     String setPassword(SetPasswordRequest passwordRequest);
 }

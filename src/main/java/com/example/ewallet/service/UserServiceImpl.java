@@ -7,16 +7,11 @@ import com.example.ewallet.data.models.User;
 import com.example.ewallet.data.repository.UserRepository;
 import com.example.ewallet.dtos.request.*;
 import com.example.ewallet.dtos.response.*;
-import com.example.ewallet.utils.CreditCardValidator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.squareup.okhttp.*;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONPointer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -30,20 +25,17 @@ import java.util.Set;
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
+    @Autowired
     private UserRepository userRepository;
+    @Autowired
     private CardService cardService;
+    @Autowired
     private KycService kycService;
+    @Autowired
     private ConfirmationTokenService confirmationTokenService;
 
     private final String SECRET_KEY = System.getenv("YOUR_SECRET_KEY");
 
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository, CardService cardService, KycService kycService, ConfirmationTokenService confirmationTokenService){
-        this.kycService = kycService;
-        this.userRepository = userRepository;
-        this.cardService = cardService;
-        this.confirmationTokenService = confirmationTokenService;
-    }
 
 
     @Override
@@ -103,7 +95,7 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Card already exist");
         } else {
             cardService.validateCreditCard(addCardRequest);
-            cardService.addCard(addCardRequest.getCard());
+            cardService.addCard(addCardRequest);
             if (optionalUser.isPresent()){
                 User user = optionalUser.get();
                 user.getUserCards().add(addCardRequest.getCard());
@@ -120,6 +112,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> findUser(String userEmail) {
         return userRepository.findByEmailAddressIgnoreCase(userEmail);
+    }
+
+    @Override
+    public Optional<User> findUserById(String userId) {
+        return userRepository.findById(userId);
     }
 
     @Override
@@ -147,10 +144,12 @@ public class UserServiceImpl implements UserService {
                     .nextOfKin(kycRequest.getNextOfKin())
                     .cardType(kycRequest.getCardType())
                     .homeAddress(kycRequest.getHomeAddress())
+                    .userId(user.getId())
                     .build();
-            user.setCompletedKyc(true);
-            kyc.setUserId(user.getId());
+
+//            kyc.setUserId(user.getId());
             kycService.saveKyc(kyc);
+            user.setCompletedKyc(true);
             userRepository.save(user);
         } else {
             throw new RuntimeException("You can no longer complete the kyc process, " +
@@ -176,8 +175,10 @@ public class UserServiceImpl implements UserService {
         return kycUpdateResponse;
     }
 
+
+
     @Override
-    public UpdateCardResponse updateCard(UpdateCardRequest updateCardRequest) {
+    public UpdateCardResponse updateCard(UpdateCardRequest updateCardRequest) throws IOException {
         var user=userRepository.findById(updateCardRequest.getUserId())
                 .orElseThrow(()-> new RuntimeException("User not found"));
        var foundCard = cardService.findByCardId(updateCardRequest.getCard().getCardId());
@@ -323,7 +324,6 @@ public class UserServiceImpl implements UserService {
         }
 
         return "Password Changed Successfully";
-
     }
 
 

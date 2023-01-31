@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public interface ConfirmationTokenRepository extends MongoRepository<ConfirmationToken, String> {
     Optional<ConfirmationToken> findByToken(String token);
+    ConfirmationToken findByUserId(String id);
     void deleteConfirmationTokensByExpiredAtBefore(LocalDateTime current);
     void confirmAt(LocalDateTime now, String confirmationToken);
 }

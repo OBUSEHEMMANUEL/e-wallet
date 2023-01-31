@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
+import java.util.Set;
+
 @Data
 public class NextOfKin {
     @NotBlank(message = "Name cannot be blank")

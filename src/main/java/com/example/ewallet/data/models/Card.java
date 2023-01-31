@@ -21,5 +21,5 @@ public class Card {
     private String expireDate;
     @NotBlank(message = "Wrong cvv format")
     @Pattern(regexp = "\\d{3}")
-    private int cvv;
+    private String cvv;
 }

@@ -76,7 +76,7 @@ public class UserController {
     }
     @PatchMapping("updateCard")
     public ResponseEntity<ApiResponse> updateCard(@RequestBody UpdateCardRequest updateCardRequest,
-                                                  HttpServletRequest httpServletRequest){
+                                                  HttpServletRequest httpServletRequest) throws IOException {
         ApiResponse response = ApiResponse.builder()
                 .statusCode(HttpStatus.OK.value())
                 .data(userService.updateCard(updateCardRequest))
@@ -139,7 +139,7 @@ public class UserController {
     }
 
     @GetMapping("/verifyCard")
-    public ResponseEntity<ApiResponse> verifyAccount(@RequestBody AddCardRequest addCardRequest, HttpServletRequest httpServletRequest) throws IOException {
+    public ResponseEntity<ApiResponse> verifyCard(@RequestBody AddCardRequest addCardRequest, HttpServletRequest httpServletRequest) throws IOException {
         ApiResponse apiResponse = ApiResponse.builder()
                 .data(cardService.validateCreditCard(addCardRequest))
                 .isSuccessful(true)

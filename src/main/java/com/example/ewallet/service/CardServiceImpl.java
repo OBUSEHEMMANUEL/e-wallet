@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.ResponseBody;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -18,15 +19,23 @@ import java.util.Optional;
 @Service
 public class CardServiceImpl implements CardService{
 
+    @Autowired
     private CardRepository cardRepository;
 
     private final String SECRET_KEY = System.getenv("YOUR_SECRET_KEY");
 
-    public CardServiceImpl(CardRepository cardRepository){
-        this.cardRepository = cardRepository;
-    }
+
     @Override
-    public void addCard(Card card) {
+    public void addCard(AddCardRequest addCardRequest) throws IOException {
+        boolean foundCard = cardRepository.findByCardNo(addCardRequest.getCard().getCardNo()).isPresent();
+        if(foundCard) throw new RuntimeException("Card already exists!");
+        validateCreditCard(addCardRequest);
+        addCardRequest.getCard().setUserId(addCardRequest.getUserId());
+        cardRepository.save(addCardRequest.getCard());
+    }
+
+    @Override
+    public void addCard(Card card) throws IOException {
         cardRepository.save(card);
     }
 
@@ -62,5 +71,4 @@ public class CardServiceImpl implements CardService{
             return cardValidationResponse;
         }
     }
-
 }

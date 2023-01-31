@@ -24,13 +24,15 @@ public interface UserService {
 
    Optional<User> findUser(String userEmail);
 
+   Optional<User> findUserById(String userId);
+
     void saveUser(User user);
    KycResponse doKyc(KycRequest kycRequest);
 
    KycUpdateResponse updateKyc(KycUpdateRequest kycUpdateRequest);
 
 
-    UpdateCardResponse updateCard(UpdateCardRequest updateCardRequest);
+    UpdateCardResponse updateCard(UpdateCardRequest updateCardRequest) throws IOException;
 
     Set<Card> findUserCards(String id);
     DeleteCardResponse deleteCard(DeleteCardRequest deleteCardRequest);
