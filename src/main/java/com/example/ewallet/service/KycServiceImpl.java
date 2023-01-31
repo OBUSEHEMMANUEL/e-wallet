@@ -17,12 +17,12 @@ import java.util.Optional;
 
 @Service
 public class KycServiceImpl implements KycService{
-
+    @Autowired
     private KycRepository kycRepository;
 
-    public KycServiceImpl(KycRepository kycRepository){
-        this.kycRepository = kycRepository;
-    }
+//    public KycServiceImpl(KycRepository kycRepository){
+//        this.kycRepository = kycRepository;
+//    }
 
     @Override
     public void saveKyc(Kyc kyc) {

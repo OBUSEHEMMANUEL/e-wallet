@@ -51,10 +51,19 @@ class RegistrationServiceImplTest {
     }
 
     @Test
-    void testConfirmationToken(){
+    void testConfirmationToken() throws MessagingException {
+        RegistrationRequest registrationRequest = new RegistrationRequest();
+        registrationRequest.setEmailAddress("me2l@gmail.com");
+        registrationRequest.setFirstName("Habeeb");
+        registrationRequest.setLastName("Hbabeb");
+        registrationRequest.setPassword("greeddkdkdk");
+        registrationService.register(registrationRequest);
+        Optional<User> foundUser = userService.findUser("me2l@gmail.com");
+        String id= foundUser.get().getId();
+        ConfirmationToken token= confirmationTokenService.findTokenByUserId(id);
         ConfirmTokenRequest confirmTokenRequest = new ConfirmTokenRequest();
-        confirmTokenRequest.setToken("5661");
-        confirmTokenRequest.setEmailAddress("mme@gmail.com");
+        confirmTokenRequest.setToken(token.getToken());
+        confirmTokenRequest.setEmailAddress("me2l@gmail.com");
         assertEquals("confirmed", registrationService.confirmToken(confirmTokenRequest));
     }
     @Test

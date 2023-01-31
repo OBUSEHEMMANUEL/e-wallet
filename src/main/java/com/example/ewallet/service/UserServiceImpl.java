@@ -25,20 +25,17 @@ import java.util.Set;
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
+    @Autowired
     private UserRepository userRepository;
+    @Autowired
     private CardService cardService;
+    @Autowired
     private KycService kycService;
+    @Autowired
     private ConfirmationTokenService confirmationTokenService;
 
     private final String SECRET_KEY = System.getenv("YOUR_SECRET_KEY");
 
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository, CardService cardService, KycService kycService, ConfirmationTokenService confirmationTokenService){
-        this.kycService = kycService;
-        this.userRepository = userRepository;
-        this.cardService = cardService;
-        this.confirmationTokenService = confirmationTokenService;
-    }
 
 
     @Override
@@ -98,7 +95,7 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Card already exist");
         } else {
             cardService.validateCreditCard(addCardRequest);
-            cardService.addCard(addCardRequest.getCard());
+            cardService.addCard(addCardRequest);
             if (optionalUser.isPresent()){
                 User user = optionalUser.get();
                 user.getUserCards().add(addCardRequest.getCard());
@@ -147,10 +144,12 @@ public class UserServiceImpl implements UserService {
                     .nextOfKin(kycRequest.getNextOfKin())
                     .cardType(kycRequest.getCardType())
                     .homeAddress(kycRequest.getHomeAddress())
+                    .userId(user.getId())
                     .build();
-            user.setCompletedKyc(true);
-            kyc.setUserId(user.getId());
+
+//            kyc.setUserId(user.getId());
             kycService.saveKyc(kyc);
+            user.setCompletedKyc(true);
             userRepository.save(user);
         } else {
             throw new RuntimeException("You can no longer complete the kyc process, " +
@@ -179,7 +178,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UpdateCardResponse updateCard(UpdateCardRequest updateCardRequest) {
+    public UpdateCardResponse updateCard(UpdateCardRequest updateCardRequest) throws IOException {
         var user=userRepository.findById(updateCardRequest.getUserId())
                 .orElseThrow(()-> new RuntimeException("User not found"));
        var foundCard = cardService.findByCardId(updateCardRequest.getCard().getCardId());

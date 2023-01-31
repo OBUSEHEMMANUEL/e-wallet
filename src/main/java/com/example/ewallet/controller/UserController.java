@@ -76,7 +76,7 @@ public class UserController {
     }
     @PatchMapping("updateCard")
     public ResponseEntity<ApiResponse> updateCard(@RequestBody UpdateCardRequest updateCardRequest,
-                                                  HttpServletRequest httpServletRequest){
+                                                  HttpServletRequest httpServletRequest) throws IOException {
         ApiResponse response = ApiResponse.builder()
                 .statusCode(HttpStatus.OK.value())
                 .data(userService.updateCard(updateCardRequest))
