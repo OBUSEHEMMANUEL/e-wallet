@@ -12,7 +12,7 @@ import java.util.Set;
 public interface UserService {
     String createAccount(User user);
 
-    void enableUser(String emailAddress);
+    void enableRegisteredUser(String emailAddress);
     LoginResponse login(LoginRequest loginRequest);
 
     String changePassword(ChangePasswordRequest changePasswordRequest);

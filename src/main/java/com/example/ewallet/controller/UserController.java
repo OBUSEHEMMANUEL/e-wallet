@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 
 @RestController
+@CrossOrigin("*")
 @RequestMapping(path = "/api/v1/user")
 public class UserController {
 
