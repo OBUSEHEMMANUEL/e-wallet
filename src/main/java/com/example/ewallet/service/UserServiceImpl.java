@@ -293,10 +293,10 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void enableUser(String emailAddress) {
-     var user =   userRepository.findByEmailAddressIgnoreCase(emailAddress)
-             .orElseThrow(()-> new RuntimeException("email not found"));
-     user.setDisabled(false);
+    public void enableRegisteredUser(String emailAddress) {
+        Optional<User> foundUser = userRepository.findByEmailAddressIgnoreCase(emailAddress);
+        foundUser.get().setEnabled(true);
+        userRepository.save(foundUser.get());
     }
 
     @Override
