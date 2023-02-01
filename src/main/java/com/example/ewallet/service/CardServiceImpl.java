@@ -71,4 +71,23 @@ public class CardServiceImpl implements CardService{
             return cardValidationResponse;
         }
     }
+    @Override
+    public String validateCardNumber(String cardNo) throws IOException {
+        OkHttpClient httpClient = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url("https://api.paystack.co/decision/bin/"
+                        + cardNo.substring(0, 6))
+                .get()
+                .addHeader("Authorization", "Bearer " + SECRET_KEY)
+                .build();
+        try (ResponseBody response = httpClient.newCall(request).execute().body()) {
+            Gson gson = new Gson();
+            CardValidationResponse cardValidationResponse = gson.fromJson(response.string(), CardValidationResponse.class);
+            if (Objects.equals(cardValidationResponse.getData()
+                    .getCard_type(), "")) throw new InvalidCreditCardNumberException("Invalid card");
+            return cardValidationResponse.getData().getCard_type();
+        }
+    }
+
 }

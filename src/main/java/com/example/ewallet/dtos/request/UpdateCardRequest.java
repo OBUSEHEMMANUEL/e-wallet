@@ -5,6 +5,10 @@ import lombok.Data;
 
 @Data
 public class UpdateCardRequest {
-    private Card card;
+    private String cardId;
+    private String cardNo;
+    private String cardName;
+    private String cardCvv;
+    private String expiryDate;
     private String userId;
 }
