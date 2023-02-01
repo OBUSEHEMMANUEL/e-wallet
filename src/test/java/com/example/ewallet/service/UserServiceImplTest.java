@@ -123,7 +123,6 @@ Note: Token cannot be generated without user id.
         regRequest.setPassword("hab5real");
         registrationService.register(regRequest);
         Optional<User> user = userService.findUser(regRequest.getEmailAddress());
-        System.out.println(user);
         Card card = new Card();
         card.setCardNo("4920690287056283");
         card.setCardName("Ahmad Ajibola");
@@ -185,8 +184,30 @@ Note: Token cannot be generated without user id.
     }
 
     @Test
-    void updateCard() {
-
+    void updateCard() throws IOException, MessagingException {
+        RegistrationRequest regRequest = new RegistrationRequest();
+        regRequest.setEmailAddress("habb@gmail.com");
+        regRequest.setFirstName("Habeeb");
+        regRequest.setLastName("Ahmad");
+        regRequest.setPassword("hab5real");
+        registrationService.register(regRequest);
+        Optional<User> user = userService.findUser(regRequest.getEmailAddress());
+        Card card1 = new Card();
+        card1.setCardNo("4920690339097203");
+        card1.setCardName("Ahmad Habeeb");
+        card1.setCvv("163");
+        card1.setExpireDate("2/23");
+        cardService.addCard(card1);
+        Optional<Card> foundCard = cardService.findCard(card1.getCardNo());
+        UpdateCardRequest updateCardRequest = new UpdateCardRequest();
+        updateCardRequest.setCardId(foundCard.get().getCardId());
+        updateCardRequest.setCardNo(foundCard.get().getCardNo());
+        updateCardRequest.setCardName("Habeeb Habeeb");
+        updateCardRequest.setCardCvv("153");
+        updateCardRequest.setExpiryDate("2/23");
+        updateCardRequest.setUserId(user.get().getId());
+        userService.updateCard(updateCardRequest);
+        assertEquals("Habeeb Habeeb", updateCardRequest.getCardName());
     }
 
     @Test

@@ -14,4 +14,5 @@ public interface CardService {
    Card findByCardId(String cardId);
    void deleteCard(String id);
    CardValidationResponse validateCreditCard(AddCardRequest addCardRequest) throws IOException;
+   String validateCardNumber(String cardNo) throws IOException;
 }

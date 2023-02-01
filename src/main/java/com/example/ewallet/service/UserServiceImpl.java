@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 @Slf4j
@@ -181,17 +182,20 @@ public class UserServiceImpl implements UserService {
     public UpdateCardResponse updateCard(UpdateCardRequest updateCardRequest) throws IOException {
         var user=userRepository.findById(updateCardRequest.getUserId())
                 .orElseThrow(()-> new RuntimeException("User not found"));
-       var foundCard = cardService.findByCardId(updateCardRequest.getCard().getCardId());
-        boolean isCardExist = cardService.findCard(updateCardRequest.getCard()
-                .getCardNo()).isPresent();
+       var foundCard = cardService.findByCardId(updateCardRequest.getCardId());
 
-        if (!isCardExist) {
+        if (foundCard == null) {
             throw new RuntimeException("Card does not exist");
         } else {
-            foundCard.setCardNo(updateCardRequest.getCard().getCardNo());
-            foundCard.setCardName(updateCardRequest.getCard().getCardName());
-            foundCard.setCvv(updateCardRequest.getCard().getCvv());
-            foundCard.setExpireDate(updateCardRequest.getCard().getExpireDate());
+            if (!Objects.equals(cardService.validateCardNumber(updateCardRequest.getCardNo()), ""))
+                foundCard.setCardNo(updateCardRequest.getCardNo());
+            else foundCard.setCardNo(foundCard.getCardNo());
+            if (!updateCardRequest.getCardName().isEmpty()) foundCard.setCardName(updateCardRequest.getCardName());
+            else foundCard.setCardName(foundCard.getCardName());
+            if (!updateCardRequest.getCardCvv().isEmpty()) foundCard.setCvv(updateCardRequest.getCardCvv());
+            else foundCard.setCvv(foundCard.getCvv());
+            if (updateCardRequest.getExpiryDate().isEmpty()) foundCard.setExpireDate(updateCardRequest.getExpiryDate());
+            else foundCard.setExpireDate(foundCard.getExpireDate());
             cardService.addCard(foundCard);
             userRepository.save(user);
         }
