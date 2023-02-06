@@ -18,22 +18,23 @@ import java.util.Set;
 @Data
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
+//@AllArgsConstructor
+//@NoArgsConstructor
 public class User {
     @Id
     private String id;
     @NotNull(message = "This field is required")
     @NotEmpty(message = "This field is required")
     private String firstName;
+    private boolean enabled = false;
     @NotNull(message = "This field is required")
     @NotEmpty(message = "This field is required")
     private String lastName;
     @Email(message="This field requires a valid email address")
     private String emailAddress;
     private String password;
-    private boolean isDisabled = true;
     private boolean isCompletedKyc;
     @DBRef
     private Set<Card> userCards = new HashSet<>();
+
 }

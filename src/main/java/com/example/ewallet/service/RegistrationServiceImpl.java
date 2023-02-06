@@ -2,15 +2,16 @@ package com.example.ewallet.service;
 
 import com.example.ewallet.dtos.request.ResendTokenRequest;
 import com.example.ewallet.dtos.request.SetPasswordRequest;
+import com.example.ewallet.dtos.response.ConfirmationTokenResponse;
 import com.example.ewallet.service.email.EmailSenderService;
 import com.example.ewallet.data.models.User;
-import com.example.ewallet.data.repository.UserRepository;
 import com.example.ewallet.dtos.request.ConfirmTokenRequest;
 import com.example.ewallet.dtos.request.RegistrationRequest;
 import com.example.ewallet.dtos.response.RegistrationResponse;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -39,6 +40,7 @@ public class RegistrationServiceImpl implements RegistrationService{
         user.setFirstName(registrationRequest.getFirstName());
         user.setLastName(registrationRequest.getLastName());
         user.setPassword(registrationRequest.getPassword());
+
         String token = userService.createAccount(user);
         RegistrationResponse registrationResponse = new RegistrationResponse();
         registrationResponse.setStatus(HttpStatus.CREATED);
@@ -46,7 +48,7 @@ public class RegistrationServiceImpl implements RegistrationService{
         emailSenderService.send(registrationRequest.getEmailAddress(),buildEmail(registrationRequest.getEmailAddress(),token));
         return registrationResponse;
     }
-    public String confirmToken(ConfirmTokenRequest confirmationToken){
+    public ConfirmationTokenResponse confirmToken(ConfirmTokenRequest confirmationToken){
         var token = confirmationTokenService.getConfirmationToken(confirmationToken.getToken())
                 .orElseThrow(()-> new IllegalStateException("Token does not exist"));
 
@@ -54,8 +56,11 @@ public class RegistrationServiceImpl implements RegistrationService{
             throw new IllegalStateException("Token has expired");
         }
         confirmationTokenService.setConfirmed(token.getToken());
-        userService.enableUser(confirmationToken.getEmailAddress());
-        return "confirmed";
+        userService.enableRegisteredUser(confirmationToken.getEmailAddress());
+        ConfirmationTokenResponse response = new ConfirmationTokenResponse();
+        response.setMessage("confirmed");
+        response.setStatusCode(HttpStatus.OK);
+        return response;
     }
     @Override
     public String resendToken(ResendTokenRequest request) throws MessagingException {
